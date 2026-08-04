@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data (too large / licensed — don't commit raw datasets)
+data/raw/*
+!data/raw/.gitkeep
+
+# RL training artifacts
+train/logs/
+train/checkpoints/
+*.zip
+
+# Env / secrets
+.env
+*.pem
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

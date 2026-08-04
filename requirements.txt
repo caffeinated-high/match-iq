@@ -1,0 +1,26 @@
+# Data / shared
+pandas
+numpy
+kloppy
+statsbombpy
+
+# Predict module
+scikit-learn
+xgboost
+
+# Strategize module
+socceraction
+
+# Train module
+gfootball
+stable-baselines3
+gymnasium
+
+# Deploy module
+streamlit
+fastapi
+uvicorn
+
+# Tooling
+jupyter
+matplotlib

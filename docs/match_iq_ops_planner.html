@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ops Planner // Match IQ — Sports Intelligence Engine</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<style>
+  :root{
+    --bg:#0a0e0c;
+    --panel:#101613;
+    --panel2:#141c19;
+    --line:#22302a;
+    --line-bright:#2f4238;
+    --teal:#22c9e5;
+    --teal-dim:#1a5a5f;
+    --amber:#ffb454;
+    --coral:#ff6b5e;
+    --text:#d7e4de;
+    --text-dim:#7c9089;
+    --text-faint:#4c5c56;
+    --mono:'JetBrains Mono','Courier New',monospace;
+    --sans:'Segoe UI',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      linear-gradient(180deg, rgba(34,201,229,0.03), transparent 200px),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    padding:0;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:28px 20px 60px;}
+
+  .head{
+    border:1px solid var(--line);
+    background:var(--panel);
+    border-radius:4px;
+    padding:20px 24px;
+    margin-bottom:18px;
+    position:relative;
+    overflow:hidden;
+  }
+  .head::before{
+    content:"";position:absolute;top:0;left:0;width:3px;height:100%;
+    background:var(--teal);box-shadow:0 0 12px var(--teal);
+  }
+  .head-eyebrow{
+    font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--teal);
+    text-transform:uppercase;margin-bottom:6px;
+  }
+  .head h1{margin:0 0 4px;font-size:22px;font-weight:500;color:#fff;letter-spacing:0.3px;}
+  .head p{margin:0;color:var(--text-dim);font-size:13px;}
+  .head-stats{display:flex;gap:22px;margin-top:16px;flex-wrap:wrap;}
+  .stat{font-family:var(--mono);}
+  .stat .n{font-size:20px;color:var(--teal);font-weight:600;}
+  .stat .l{font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:1px;}
+
+  .progress-track{
+    height:6px;background:var(--panel2);border-radius:3px;overflow:hidden;margin-top:14px;border:1px solid var(--line);
+  }
+  .progress-fill{
+    height:100%;background:linear-gradient(90deg,var(--teal-dim),var(--teal));
+    width:0%;transition:width .4s ease;
+  }
+
+  .tabs{
+    display:flex;gap:2px;margin-bottom:18px;border:1px solid var(--line);
+    border-radius:4px;overflow:hidden;background:var(--panel);
+  }
+  .tab-btn{
+    flex:1;padding:11px 8px;background:transparent;border:none;color:var(--text-dim);
+    font-family:var(--mono);font-size:12px;letter-spacing:0.5px;cursor:pointer;
+    border-bottom:2px solid transparent;transition:all .15s;text-transform:uppercase;
+  }
+  .tab-btn:hover{color:var(--text);background:rgba(255,255,255,0.02);}
+  .tab-btn.active{color:var(--teal);border-bottom:2px solid var(--teal);background:rgba(34,201,229,0.06);}
+
+  .panel{display:none;}
+  .panel.active{display:block;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  .card{
+    border:1px solid var(--line);background:var(--panel);border-radius:4px;
+    padding:16px 18px;margin-bottom:10px;
+  }
+  .section-title{
+    font-family:var(--mono);font-size:11px;letter-spacing:1.5px;color:var(--amber);
+    text-transform:uppercase;margin:22px 0 10px;display:flex;align-items:center;gap:8px;
+  }
+  .section-title:first-child{margin-top:0;}
+  .section-title::after{content:"";flex:1;height:1px;background:var(--line);}
+
+  /* Overview */
+  .overview-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:640px){.overview-grid{grid-template-columns:1fr;}}
+  .flow-item{
+    display:flex;align-items:center;gap:12px;padding:12px 14px;
+    border:1px solid var(--line);border-radius:4px;background:var(--panel2);
+  }
+  .flow-num{
+    font-family:var(--mono);font-size:11px;color:var(--bg);background:var(--teal);
+    width:22px;height:22px;border-radius:3px;display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;font-weight:700;
+  }
+  .flow-item .t{font-size:13.5px;color:var(--text);font-weight:500;}
+  .flow-item .s{font-size:11.5px;color:var(--text-dim);}
+
+  /* Timeline */
+  .week-card{
+    display:flex;gap:12px;align-items:flex-start;
+    border:1px solid var(--line);background:var(--panel);border-radius:4px;
+    padding:13px 16px;margin-bottom:8px;transition:border-color .15s;
+  }
+  .week-card:hover{border-color:var(--line-bright);}
+  .week-card.done{opacity:0.5;}
+  .week-card.done .w-milestone{text-decoration:line-through;}
+  .w-check{
+    width:20px;height:20px;border:1.5px solid var(--text-faint);border-radius:4px;
+    flex-shrink:0;cursor:pointer;margin-top:2px;display:flex;align-items:center;justify-content:center;
+    transition:all .15s;
+  }
+  .w-check.checked{background:var(--teal);border-color:var(--teal);}
+  .w-check.checked i{color:var(--bg);font-size:13px;}
+  .w-meta{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);white-space:nowrap;padding-top:2px;min-width:60px;}
+  .w-meta .wk{color:var(--teal);}
+  .w-body{flex:1;}
+  .w-milestone{font-size:13.5px;color:var(--text);margin-bottom:3px;}
+  .w-phase{
+    display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:0.5px;
+    padding:2px 7px;border-radius:3px;text-transform:uppercase;
+  }
+  .phase-setup{background:rgba(124,144,137,0.15);color:var(--text-dim);}
+  .phase-predict{background:rgba(255,180,84,0.12);color:var(--amber);}
+  .phase-strat{background:rgba(34,201,229,0.12);color:var(--teal);}
+  .phase-train{background:rgba(255,107,94,0.12);color:var(--coral);}
+  .phase-deploy{background:rgba(160,120,255,0.14);color:#b79bff;}
+  .week-card.midway{border-color:var(--amber);background:rgba(255,180,84,0.05);}
+  .midway-tag{font-family:var(--mono);font-size:9.5px;color:var(--amber);letter-spacing:1px;margin-bottom:4px;}
+
+  /* Learning tracks / Team */
+  .person-card{border:1px solid var(--line);background:var(--panel);border-radius:4px;margin-bottom:12px;overflow:hidden;}
+  .person-head{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);background:var(--panel2);}
+  .person-head .role{font-size:14px;font-weight:500;color:#fff;}
+  .person-head .owns{font-family:var(--mono);font-size:10.5px;color:var(--text-dim);}
+  .person-body{padding:12px 16px;}
+  .skill-row{display:flex;gap:8px;align-items:baseline;padding:5px 0;font-size:13px;border-bottom:1px dashed var(--line);}
+  .skill-row:last-child{border-bottom:none;}
+  .skill-row .wk-tag{font-family:var(--mono);font-size:10px;color:var(--teal);min-width:52px;flex-shrink:0;}
+  .skill-row .desc{color:var(--text-dim);}
+
+  /* Stack */
+  .stack-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;}
+  .stack-item{border:1px solid var(--line);background:var(--panel);border-radius:4px;padding:12px 14px;}
+  .stack-item .name{font-size:13.5px;color:var(--teal);font-weight:500;font-family:var(--mono);}
+  .stack-item .use{font-size:12px;color:var(--text-dim);margin-top:3px;}
+
+  /* Resources tab */
+  .res-group{margin-bottom:6px;}
+  .res-item{
+    display:flex;gap:10px;padding:10px 14px;border:1px solid var(--line);background:var(--panel);
+    border-radius:4px;margin-bottom:8px;align-items:flex-start;
+  }
+  .res-icon{color:var(--teal);font-size:16px;margin-top:1px;flex-shrink:0;}
+  .res-name{font-size:13.5px;color:#fff;font-weight:500;}
+  .res-desc{font-size:12px;color:var(--text-dim);margin-top:2px;line-height:1.5;}
+  .res-tag{
+    font-family:var(--mono);font-size:9px;letter-spacing:0.5px;color:var(--amber);
+    text-transform:uppercase;margin-left:8px;
+  }
+
+  .foot-note{
+    font-size:11.5px;color:var(--text-faint);text-align:center;margin-top:22px;font-family:var(--mono);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div class="head-eyebrow">// arjun shukla — team project console</div>
+    <h1>Match IQ — Sports Intelligence Engine</h1>
+    <p>10-week build · college-fest hackathon · 2-4 person team</p>
+    <div class="head-stats">
+      <div class="stat"><div class="n" id="stat-done">0/10</div><div class="l">Weeks done</div></div>
+      <div class="stat"><div class="n">6</div><div class="l">Midway demo</div></div>
+      <div class="stat"><div class="n">4</div><div class="l">Core modules</div></div>
+      <div class="stat"><div class="n">2</div><div class="l">Deploy modes</div></div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="timeline">Timeline</button>
+    <button class="tab-btn" data-tab="learning">Learning</button>
+    <button class="tab-btn" data-tab="team">Team</button>
+    <button class="tab-btn" data-tab="resources">Resources</button>
+    <button class="tab-btn" data-tab="stack">Stack</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="panel active" id="panel-overview">
+    <div class="section-title">System pipeline</div>
+    <div class="overview-grid">
+      <div class="flow-item"><div class="flow-num">1</div><div><div class="t">Data layer</div><div class="s">Event + tracking data, shared schema</div></div></div>
+      <div class="flow-item"><div class="flow-num">2</div><div><div class="t">Predict module</div><div class="s">xG, win-probability curve</div></div></div>
+      <div class="flow-item"><div class="flow-num">3</div><div><div class="t">Strategize module</div><div class="s">VAEP action valuation</div></div></div>
+      <div class="flow-item"><div class="flow-num">4</div><div><div class="t">Train module</div><div class="s">RL agent, Google Research Football</div></div></div>
+      <div class="flow-item"><div class="flow-num">5</div><div><div class="t">Deployment layer</div><div class="s">Club API + game-engine API</div></div></div>
+    </div>
+
+    <div class="section-title">Why this project</div>
+    <div class="card" style="font-size:13.5px;color:var(--text-dim);line-height:1.7;">
+      One shared game-state schema feeds three real capabilities instead of three disconnected demos: predicting outcomes,
+      valuing every decision a player makes (not just goals), and training an agent that can actually act.
+      Every module is built on open, reproducible tools — StatsBomb data, the socceraction/VAEP library, Google
+      Research Football — so nothing here depends on data or infrastructure you don't have access to.
+    </div>
+
+    <div class="section-title">Midway demo target — week 6</div>
+    <div class="card" style="font-size:13px;color:var(--text-dim);">
+      Predict module shows a real win-probability curve on an actual StatsBomb match. Strategize module shows VAEP
+      player rankings running end to end via socceraction. Train module shows a visible training-reward curve for
+      a PPO agent on one Football Academy scenario — it doesn't need to be good yet, it needs to be honestly training.
+      Partial-but-real beats faked end-to-end.
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="panel" id="panel-timeline">
+    <div class="section-title">10-week plan</div>
+    <div id="week-list"></div>
+  </div>
+
+  <!-- LEARNING -->
+  <div class="panel" id="panel-learning">
+    <div class="section-title">Per-role learning tracks</div>
+    <div id="learning-list"></div>
+  </div>
+
+  <!-- TEAM -->
+  <div class="panel" id="panel-team">
+    <div class="section-title">Ownership</div>
+    <div id="team-list"></div>
+  </div>
+
+  <!-- RESOURCES -->
+  <div class="panel" id="panel-resources">
+    <div class="section-title">Datasets</div>
+    <div id="res-data"></div>
+    <div class="section-title">Papers &amp; frameworks</div>
+    <div id="res-papers"></div>
+  </div>
+
+  <!-- STACK -->
+  <div class="panel" id="panel-stack">
+    <div class="section-title">Tech stack</div>
+    <div class="stack-grid" id="stack-grid"></div>
+  </div>
+
+  <div class="foot-note">Progress saves automatically on this device // reset anytime by unchecking weeks</div>
+
+</div>
+
+<script>
+const weeks = [
+  {n:1, date:"Wk 1", phase:"setup", tag:"Setup", m:"Shared game-state schema designed as a team; repo, environments, and data access set up"},
+  {n:2, date:"Wk 2", phase:"predict", tag:"Data + Predict", m:"StatsBomb ingestion working through the shared schema; shot-level features extracted"},
+  {n:3, date:"Wk 3", phase:"predict", tag:"Predict", m:"Baseline xG model (logistic regression) running on real shot data"},
+  {n:4, date:"Wk 4", phase:"strat", tag:"Strategize", m:"socceraction installed, SPADL conversion working, VAEP tutorial notebook run end to end"},
+  {n:5, date:"Wk 5", phase:"train", tag:"Train", m:"Google Research Football installed; PPO training started on a Football Academy scenario"},
+  {n:6, date:"Wk 6", phase:"predict", tag:"Checkpoint", m:"MIDWAY DEMO: win-probability curve, VAEP player rankings, and a visible RL training curve — each real, none fully polished", midway:true},
+  {n:7, date:"Wk 7", phase:"strat", tag:"Depth", m:"Win-probability extended across full match state; VAEP player-ranking view built; TacticAI reading started"},
+  {n:8, date:"Wk 8", phase:"train", tag:"Depth", m:"RL agent moved to a harder scenario; training curves logged properly for the demo"},
+  {n:9, date:"Wk 9", phase:"deploy", tag:"Integration", m:"NBA tracking-data slice mapped into shared schema (second-sport proof); dashboard wired to Predict + Strategize"},
+  {n:10, date:"Wk 10", phase:"deploy", tag:"Deploy + Polish", m:"Club-mode and game-engine-mode API endpoints built; demo clip recorded; pitch rehearsed"},
+];
+
+const learning = [
+  {role:"Person A — Data & Predict", owns:"Shared schema, StatsBomb pipeline, xG/win-prob model", items:[
+    ["Wk1-2","pandas data wrangling, football event-data schema design (SPADL), kloppy/statsbombpy"],
+    ["Wk2-3","Shot feature engineering (distance, angle, body part), logistic regression fundamentals"],
+    ["Wk3-6","Gradient boosting (XGBoost/CatBoost), extending to a live win-probability curve"],
+  ]},
+  {role:"Person B — Strategize", owns:"VAEP pipeline, action-value rankings", items:[
+    ["Wk1-3","socceraction library, SPADL action representation, VAEP theory (scoring/conceding probability)"],
+    ["Wk3-6","Training the underlying classifiers, aggregating action values into player ratings"],
+    ["Wk6-9","Reading TacticAI (GNN-based tactic generation) for the stretch goal"],
+  ]},
+  {role:"Person C — Train", owns:"RL agent, Google Research Football environment", items:[
+    ["Wk1-3","RL fundamentals (MDP, policy gradients), installing and configuring Google Research Football"],
+    ["Wk3-6","PPO with Stable-Baselines3, reward shaping, training on Football Academy scenarios"],
+    ["Wk6-9","Scaling to harder scenarios, reading OpenAI Five / AlphaStar for self-play architecture ideas"],
+  ]},
+  {role:"Person D — Deployment & Integration", owns:"Dashboard, APIs, second-sport proof", items:[
+    ["Wk1-3","Dashboard tooling (Streamlit or FastAPI + React), basic API design"],
+    ["Wk3-6","Wiring Predict and Strategize outputs into live dashboard views"],
+    ["Wk6-9","Mapping NBA tracking data into the shared schema; building club-mode and game-engine-mode endpoints"],
+  ]},
+];
+
+const team = [
+  {role:"Person A — Data & Predict", owns:"Shared schema, data ingestion, xG and win-probability models", skills:"Python, pandas, StatsBomb data, logistic regression / XGBoost"},
+  {role:"Person B — Strategize", owns:"VAEP action-value pipeline, player-ranking views", skills:"socceraction, scikit-learn, gradient boosting, football tactics literacy"},
+  {role:"Person C — Train", owns:"RL agent training, Google Research Football scenarios", skills:"Reinforcement learning basics, Stable-Baselines3, PPO"},
+  {role:"Person D — Deployment", owns:"Dashboard, club/game-engine APIs, second-sport integration", skills:"Streamlit or FastAPI + React, API design, basic frontend"},
+];
+
+const resData = [
+  {name:"StatsBomb Open Data", tag:"Event data", desc:"Free event data for hundreds of matches including full World Cups; some with 360° freeze-frame tracking. github.com/statsbomb/open-data"},
+  {name:"Wyscout Match Event Dataset", tag:"Event data", desc:"World Cup 2018, Euro 2016, and 2017/18 top-5 European leagues, with an accompanying schema paper."},
+  {name:"Metrica Sports Sample Data", tag:"Tracking data", desc:"Real x,y player tracking plus matching event data for 3 anonymized matches — needed for spatial/positional work."},
+  {name:"NBA SportVU Tracking Data (2015-16)", tag:"Tracking data", desc:"Full-season player and ball tracking merged with play-by-play. huggingface.co/datasets/dcayton/nba_tracking_data_15_16"},
+  {name:"balldontlie API", tag:"Lightweight", desc:"Free JSON NBA box-score/game data — fast to prototype against before touching tracking data."},
+];
+
+const resPapers = [
+  {name:"VAEP — Actions Speak Louder Than Goals", tag:"Strategize", desc:"Decroos et al. (KDD 2019). Values every on-the-ball action by its effect on scoring/conceding probability, not just shots."},
+  {name:"socceraction library", tag:"Tool", desc:"pip-installable; converts event data to SPADL and implements VAEP and Expected Threat. Ships full tutorial notebooks."},
+  {name:"Decomposing the Immeasurable Sport", tag:"Strategize", desc:"Cervone, Bornn et al. (MIT Sloan 2016). The tracking-data / EPV equivalent of VAEP, referenced in FC Barcelona's own research."},
+  {name:"TacticAI", tag:"Stretch goal", desc:"DeepMind × Liverpool FC, Nature Communications 2024. GNN-based predictive + generative corner-kick tactics assistant."},
+  {name:"Google Research Football", tag:"Train", desc:"arXiv 1907.11180. Physics-based 3D RL environment with full-game benchmarks and Football Academy mini-scenarios."},
+  {name:"MARLadona", tag:"Train", desc:"arXiv 2409.20326. Open-source multi-agent RL soccer pipeline on Isaac Gym, a reference once GRF baselines are outgrown."},
+  {name:"OpenAI Five / Dota 2 paper", tag:"Reference", desc:"arXiv 1912.06680. Large-scale self-play case study — read for architecture ideas, not for hackathon-scale reproduction."},
+  {name:"AlphaStar", tag:"Reference", desc:"Vinyals et al., Nature 2019. Grandmaster-level multi-agent RL in StarCraft II — league training and self-play concepts."},
+  {name:"Deep Learning in Sports Applications (Survey)", tag:"Orientation", desc:"arXiv 2307.03353. Datasets and methods across football, basketball, and other sports, organized by task."},
+];
+
+const stack = [
+  ["StatsBomb Open Data + kloppy/statsbombpy","Event-data ingestion into the shared schema"],
+  ["socceraction","SPADL conversion + VAEP / Expected Threat action valuation"],
+  ["scikit-learn / XGBoost / CatBoost","xG model, win-probability model, VAEP's underlying classifiers"],
+  ["Google Research Football + Stable-Baselines3","RL training environment and PPO implementation"],
+  ["Metrica Sports / NBA SportVU tracking data","Spatial/positional modeling, second-sport proof"],
+  ["Streamlit or FastAPI + React","Dashboard: predictions, action-value rankings, agent demo"],
+  ["Two API modes","Club/analyst endpoint + game-engine/bot endpoint serving the trained policy"],
+  ["Git + GitHub","Version control, feature branches per module, set up week 1"],
+];
+
+const phaseClass = {setup:"phase-setup", predict:"phase-predict", strat:"phase-strat", train:"phase-train", deploy:"phase-deploy"};
+
+function renderWeeks(state){
+  const list = document.getElementById('week-list');
+  list.innerHTML = weeks.map(w => {
+    const checked = state[w.n] ? 'checked' : '';
+    return `
+    <div class="week-card ${state[w.n]?'done':''} ${w.midway?'midway':''}" data-week="${w.n}">
+      <div class="w-check ${checked}" onclick="toggleWeek(${w.n})">${state[w.n] ? '<i class="ti ti-check"></i>' : ''}</div>
+      <div class="w-meta"><span class="wk">${w.date}</span></div>
+      <div class="w-body">
+        ${w.midway ? '<div class="midway-tag">★ MIDWAY REVIEW</div>' : ''}
+        <div class="w-milestone">${w.m}</div>
+        <span class="w-phase ${phaseClass[w.phase]}">${w.tag}</span>
+      </div>
+    </div>`;
+  }).join('');
+  const doneCount = Object.values(state).filter(Boolean).length;
+  document.getElementById('stat-done').textContent = `${doneCount}/10`;
+  document.getElementById('progress-fill').style.width = (doneCount/10*100) + '%';
+}
+
+function renderLearning(){
+  document.getElementById('learning-list').innerHTML = learning.map(p => `
+    <div class="person-card">
+      <div class="person-head"><span class="role">${p.role}</span><span class="owns">${p.owns}</span></div>
+      <div class="person-body">
+        ${p.items.map(i => `<div class="skill-row"><span class="wk-tag">${i[0]}</span><span class="desc">${i[1]}</span></div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderTeam(){
+  document.getElementById('team-list').innerHTML = team.map(p => `
+    <div class="card">
+      <div style="font-size:14px;color:#fff;font-weight:500;margin-bottom:6px;">${p.role}</div>
+      <div style="font-size:12.5px;color:var(--text-dim);margin-bottom:6px;"><i class="ti ti-target" style="color:var(--teal);margin-right:5px;"></i>${p.owns}</div>
+      <div style="font-size:12px;color:var(--text-faint);"><i class="ti ti-books" style="margin-right:5px;"></i>${p.skills}</div>
+    </div>
+  `).join('');
+}
+
+function renderResources(){
+  document.getElementById('res-data').innerHTML = resData.map(r => `
+    <div class="res-item">
+      <i class="ti ti-database res-icon"></i>
+      <div><div class="res-name">${r.name}<span class="res-tag">${r.tag}</span></div><div class="res-desc">${r.desc}</div></div>
+    </div>
+  `).join('');
+  document.getElementById('res-papers').innerHTML = resPapers.map(r => `
+    <div class="res-item">
+      <i class="ti ti-file-text res-icon"></i>
+      <div><div class="res-name">${r.name}<span class="res-tag">${r.tag}</span></div><div class="res-desc">${r.desc}</div></div>
+    </div>
+  `).join('');
+}
+
+function renderStack(){
+  document.getElementById('stack-grid').innerHTML = stack.map(s => `
+    <div class="stack-item"><div class="name">${s[0]}</div><div class="use">${s[1]}</div></div>
+  `).join('');
+}
+
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// Storage-backed progress
+let weekState = {};
+async function loadState(){
+  try{
+    const res = await window.storage.get('matchiq-week-progress');
+    weekState = res ? JSON.parse(res.value) : {};
+  }catch(e){
+    weekState = {};
+  }
+  renderWeeks(weekState);
+}
+async function saveState(){
+  try{
+    await window.storage.set('matchiq-week-progress', JSON.stringify(weekState));
+  }catch(e){
+    console.error('Save failed', e);
+  }
+}
+window.toggleWeek = function(n){
+  weekState[n] = !weekState[n];
+  renderWeeks(weekState);
+  saveState();
+};
+
+renderLearning();
+renderTeam();
+renderResources();
+renderStack();
+loadState();
+</script>
+</body>
+</html>
